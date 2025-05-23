@@ -5,9 +5,9 @@ Large language models (LLMs) provide powerful means to leverage prior knowledge 
 In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich world knowledge within LLMs for tabular machine learning tasks.
 
 ## Results Reproduction
-The results presented in the paper can be reproduced by running the `ecml_calculation.py` script. 
+The results presented in the paper can be reproduced by running the `calculations.py` script. 
 However, these results have already been generated and are available in the `result` folder. 
-You can visualize these results using the `ecml_evaluation.ipynb` notebook.
+You can visualize these results using the `evaluations.ipynb` notebook.
 
 # The Python Package
 
