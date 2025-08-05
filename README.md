@@ -1,5 +1,5 @@
 # LLM Trees: Decision Trees with Language Models
-Official repo: [“Oh LLM, I’m Asking Thee, Please Give Me a Decision Tree”: Zero-Shot Decision Tree Induction and Embedding with Large Language Models](https://arxiv.org/abs/2409.18594)
+Official repo: [“Oh LLM, I’m Asking Thee, Please Give Me a Decision Tree”: Zero-Shot Decision Tree Induction and Embedding with Large Language Models](https://dl.acm.org/doi/10.1145/3711896.3736818)
 
 Large language models (LLMs) provide powerful means to leverage prior knowledge for predictive modeling when data is limited. 
 In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich world knowledge within LLMs for tabular machine learning tasks.
