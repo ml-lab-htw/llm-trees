@@ -15,8 +15,7 @@ def main():
     parser_generate = subparsers.add_parser('generate', help='Generate decision trees')
     parser_generate.add_argument('--root', type=str, default=".", help="Root directory for the project")
     parser_generate.add_argument('--dataset', type=str, default="penguins", help="Dataset name")
-    parser_generate.add_argument('--method', type=str, default="gpt-4o", choices=['gpt-4o', 'gpt-o1', 'gemini', 'claude'], help="The LLM method to use (gpt-4o, gpt-o1, gemini, claude)")
-    parser_generate.add_argument('--temperature', type=float, default=1, help="Temperature for the LLM")
+    parser_generate.add_argument('--temperature', type=float, default=0, help="Temperature for the LLM")
     parser_generate.add_argument('--iter', type=int, default=0, help="Iteration counter")
     parser_generate.add_argument('--num_iters', type=int, default=5, help="Number of iterations")
     parser_generate.add_argument('--force_decision_tree', type=bool, default=True, help="Force the generation of a decision tree")
@@ -35,8 +34,7 @@ def main():
     parser_eval_induction = subparsers.add_parser('eval_induction', help='Evaluate induction')
     parser_eval_induction.add_argument('--root', type=str, default=".", help="Root directory for the project")
     parser_eval_induction.add_argument('--dataset', type=str, default="penguins", help="Dataset name")
-    parser_eval_induction.add_argument('--method', type=str, default="gpt-4o", choices=['gpt-4o', 'gpt-o1', 'gemini', 'claude'], help="The LLM method to use (gpt-4o, gpt-o1, gemini, claude)")
-    parser_eval_induction.add_argument('--temperature', type=float, default=1, help="Temperature for the LLM")
+    parser_eval_induction.add_argument('--temperature', type=float, default=0, help="Temperature for the LLM")
     parser_eval_induction.add_argument('--iter', type=int, default=0, help="Iteration counter")
     parser_eval_induction.add_argument('--num_iters', type=int, default=5, help="Number of iterations")
     parser_eval_induction.add_argument('--train_split', type=float, default=0.67, help="Train/test split ratio")
@@ -57,7 +55,6 @@ def main():
     parser_eval_embedding = subparsers.add_parser('eval_embedding', help='Evaluate embedding')
     parser_eval_embedding.add_argument('--root', type=str, default=".", help="Root directory for the project")
     parser_eval_embedding.add_argument('--dataset', type=str, default="penguins", help="Dataset name")
-    parser_eval_embedding.add_argument('--method', type=str, default="gpt-4o", choices=['gpt-4o', 'gpt-o1', 'gemini', 'claude'], help="The LLM method to use (gpt-4o, gpt-o1, gemini, claude)")
     parser_eval_embedding.add_argument('--temperature', type=float, default=1, help="Temperature for the LLM")
     parser_eval_embedding.add_argument('--iter', type=int, default=0, help="Iteration counter")
     parser_eval_embedding.add_argument('--num_iters', type=int, default=5, help="Number of iterations")
@@ -87,7 +84,7 @@ def main():
     config = Config(
         root=args.root,
         dataset=args.dataset,
-        method=args.method,
+        method="openrouter",
         temperature=args.temperature,
         iter=args.iter,
         num_iters=args.num_iters,

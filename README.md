@@ -1,8 +1,7 @@
 # LLM Trees: Decision Trees with Language Models
 Official repo: [“Oh LLM, I’m Asking Thee, Please Give Me a Decision Tree”: Zero-Shot Decision Tree Induction and Embedding with Large Language Models](https://dl.acm.org/doi/10.1145/3711896.3736818)
 
-Large language models (LLMs) provide powerful means to leverage prior knowledge for predictive modeling when data is limited. 
-In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich world knowledge within LLMs for tabular machine learning tasks.
+Large language models (LLMs) provide powerful means to leverage prior knowledge for predictive modeling when data is limited. In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich world knowledge within LLMs for tabular machine learning tasks.
 
 ## Results Reproduction
 The results presented in the paper can be reproduced by running the `calculations.py` script. 
@@ -13,8 +12,7 @@ You can visualize these results using the `evaluations.ipynb` notebook.
 
 ## Overview
 
-`llm_trees` is a Python package that allows you to generate and evaluate decision trees using various language models (LLMs) such as GPT (4o and o1), Gemini, and Claude. 
-This package provides a Command Line Interface (CLI) to facilitate these operations. 
+`llm_trees` is a Python package that allows you to generate and evaluate decision trees using various language models (LLMs). This package provides a Command Line Interface (CLI) to facilitate these operations. 
 The trees can be evaluated directly (induction) or as embeddings followed by a [multi-layer perceptron classifier](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html) as a probe. 
 
 
@@ -29,13 +27,11 @@ pip install llm_trees
 
 ## Configuration
 
-To configure the `.env` file for accessing the LLMs, you need to set the respective API keys based on the model you intend to use. The `.env` file should include the following keys:
+We provide an interface to OpenRouter for accessing LLMs. Use an `.env` file to set the [model](https://openrouter.ai/models) and [API key](https://openrouter.ai/keys). The `.env` file should include the following keys:
 
-- `OPENAI_API_KEY` for GPT models
-- `GOOGLE_CLOUD_PROJECT` for Gemini
-- `ANTHROPIC_API_KEY` for Claude
+- `OPENROUTER_MODEL`
+- `OPENROUTER_API_KEY`
 
-You only need to provide the key for the model you plan to use. 
 Place the `.env` file in the root directory of your project.
 
 ## Usage
@@ -54,8 +50,7 @@ python -m llm_trees.cli generate [OPTIONS]
 
 - `--root`: Root directory for the project (default: `.`)
 - `--dataset`: Dataset name (default: `penguins`)
-- `--method`: The LLM method to use (default: `gpt-4o`, choices: `gpt-4o`, `gpt-o1`, `gemini`, `claude`)
-- `--temperature`: Temperature for the LLM (default: `1`)
+- `--temperature`: Temperature for the LLM (default: `0`)
 - `--iter`: Iteration counter (default: `0`)
 - `--force_decision_tree`: Force the generation of a decision tree or let the LLM decide (only for induction) (default: `True`)
 - `--include_description`: Include dataset descriptions in the prompt (default: `False`)
@@ -80,8 +75,7 @@ python -m llm_trees.cli eval_induction [OPTIONS]
 
 - `--root`: Root directory for the project (default: `.`)
 - `--dataset`: Dataset name (default: `penguins`)
-- `--method`: The LLM method to use (default: `gpt-4o`, choices: `gpt-4o`, `gpt-o1`, `gemini`, `claude`)
-- `--temperature`: Temperature for the LLM (default: `1`)
+- `--temperature`: Temperature for the LLM (default: `0`)
 - `--iter`: Iteration counter (default: `0`)
 - `--num_iters`: Number of iterations (default: `5`)
 - `--train_split`: Train/test split ratio (default: `0.67`)
@@ -110,7 +104,6 @@ python -m llm_trees.cli eval_embedding [OPTIONS]
 
 - `--root`: Root directory for the project (default: `.`)
 - `--dataset`: Dataset name (default: `penguins`)
-- `--method`: The LLM method to use (default: `gpt-4o`, choices: `gpt-4o`, `gpt-o1`, `gemini`, `claude`)
 - `--temperature`: Temperature for the LLM (default: `1`)
 - `--iter`: Iteration counter (default: `0`)
 - `--num_iters`: Number of iterations (default: `5`)
@@ -134,19 +127,19 @@ python -m llm_trees.cli eval_embedding [OPTIONS]
 ### Generate Decision Trees
 
 ```sh
-python -m llm_trees.cli generate --method gpt-4o --dataset penguins --temperature 1.0
+python -m llm_trees.cli generate --dataset penguins --temperature 0.0
 ```
 
 ### Evaluate Induction
 
 ```sh
-python -m llm_trees.cli eval_induction --method gpt-4o --dataset penguins --temperature 1.0
+python -m llm_trees.cli eval_induction --dataset penguins --temperature 0.0
 ```
 
 ### Evaluate Embedding
 
 ```sh
-python -m llm_trees.cli eval_embedding --method gpt-4o --dataset penguins --temperature 1.0
+python -m llm_trees.cli eval_embedding --dataset penguins --temperature 1.0
 ```
 
 

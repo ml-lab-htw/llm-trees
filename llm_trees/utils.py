@@ -4,9 +4,14 @@ import re
 import numpy as np
 import pandas as pd
 
+from dotenv import load_dotenv
+
 from .config import Config
 from .io import get_data
-from .llms import generate_gpt_tree, generate_claude_tree, generate_gemini_tree
+from .llms import generate_openrouter_tree, generate_gpt_tree, generate_claude_tree, generate_gemini_tree
+
+# Load the environment variables from .env file
+load_dotenv()
 
 
 def generate_tree(config):
@@ -16,14 +21,16 @@ def generate_tree(config):
         if config.generate_tree_if_missing:
             print(f"$$$ -> {config.method.upper()}: {config.dataset}-{config.iter}")
 
-            if config.method in ["gpt-4o", "gpt-o1"]:
+            if config.method == "openrouter":
+                prompting_result = generate_openrouter_tree(config)
+            elif config.method in ["gpt-4o", "gpt-o1"]:
                 prompting_result = generate_gpt_tree(config)
             elif config.method == "claude":
                 prompting_result = generate_claude_tree(config)
             elif config.method == "gemini":
                 prompting_result = generate_gemini_tree(config)
             else:
-                raise ValueError(f"Unknown model: {config.method}")
+                raise ValueError(f"Unknown method: {config.method}")
 
             export_prompting_result(tree_path, prompting_result)
 
@@ -187,9 +194,11 @@ def extract_python_code(response_text):
 
 def get_tree_path(config):
 
+    method = os.environ["OPENROUTER_MODEL"].replace("~", "").replace("/", "_").replace(":", "_")
+
     if config.force_decision_tree:
         tree_file_name = (f"{config.dataset}_"
-                          f"{config.method}_"
+                          f"{method}_"
                           f"examples_{config.num_examples}_"
                           f"desc_{config.include_description}_"
                           f"temp_{100 * config.temperature:.0f}_"
@@ -197,7 +206,7 @@ def get_tree_path(config):
                           f"iter_{config.iter}.txt")
     else: # free form
         tree_file_name = (f"{config.dataset}_"
-                          f"{config.method}_"
+                          f"{method}_"
                           f"free_form_"
                           f"temp_{100 * config.temperature:.0f}_"
                           f"iter_{config.iter}.txt")
@@ -205,7 +214,7 @@ def get_tree_path(config):
     if config.llm_dialogue: # i.e. two step tree generation
         tree_file_name = tree_file_name.replace(".txt", "_dialogue.txt")
 
-    return os.path.join(config.root, "trees", config.dataset, config.method, tree_file_name)
+    return os.path.join(config.root, "trees", config.dataset, method, tree_file_name)
 
 def export_prompting_result(tree_path, prompting_result):
     if not os.path.exists(os.path.dirname(tree_path)):

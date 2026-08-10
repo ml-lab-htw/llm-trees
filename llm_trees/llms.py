@@ -10,26 +10,86 @@ from vertexai.generative_models import GenerativeModel
 from llm_trees import prompts
 from .config import Config
 
-# Load the environment variables from .env file (e.g. OPENAI_API_KEY and GOOGLE_CLOUD_PROJECT)
+# Load the environment variables from .env file
 load_dotenv()
 
-# gpt_4o_model = "chatgpt-4o-latest"
-gpt_4o_model = "gpt-4o-2024-05-13"
-gpt_o1_model = "o1-preview"
-# gemini_model = "gemini-1.5-pro-002"
-gemini_model = "gemini-1.5-pro-001"
-# claude_model = "claude-3-5-sonnet-20241022"
-claude_model = "claude-3-5-sonnet-20240620"
+
+def generate_openrouter_tree(config: Config):
+
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.environ["OPENROUTER_API_KEY"]
+        )
+    openrouter_model = os.environ["OPENROUTER_MODEL"]
+
+    if not config.force_decision_tree:
+        full_prompt = prompts.get_free_prompt(config)
+        response = client.chat.completions.create(
+            model=openrouter_model,
+            messages=[{"role": "user", "content": full_prompt}],
+            temperature=config.temperature,
+            seed=config.iter,
+        )
+
+        return response.choices[0].message.content
+
+    if config.llm_dialogue:
+        first_prompt = prompts.get_first_prompt(config)
+
+        if config.force_decision_tree:
+            second_prompt = prompts.get_second_prompt(config)
+        else:
+            raise NotImplementedError("The model does not support free response")
+
+        # Initialize conversation history
+        messages = [
+            {"role": "user", "content": first_prompt},
+        ]
+
+        first_response = client.chat.completions.create(
+            model=openrouter_model,
+            messages=messages,
+            temperature=config.temperature,
+            seed=config.iter,
+        )
+
+        # Add assistant response to the conversation history
+        messages.append({"role": "assistant", "content": first_response.choices[0].message.content})
+
+        # User's next input
+        messages.append({"role": "user", "content": second_prompt})
+
+        # Second response
+        second_response = client.chat.completions.create(
+            model=openrouter_model,
+            messages=messages,
+            temperature=config.temperature,
+            seed=config.iter,
+        )
+
+        response = first_response.choices[0].message.content + 3 * "\n" + 25 * "#" + 3 * "\n" + second_response.choices[0].message.content
+        return response
+    else:
+        full_prompt = prompts.get_full_prompt(config)
+
+        response = client.chat.completions.create(
+            model=openrouter_model,
+            messages=[{"role": "user", "content": full_prompt}],
+            temperature=config.temperature,
+            seed=config.iter,
+        )
+
+        return response.choices[0].message.content
 
 
-def generate_gpt_tree(config):
+def generate_gpt_tree(config: Config):
 
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 
     if config.method == "gpt-4o":
-        gpt_model = gpt_4o_model
+        gpt_model ="gpt-4o-2024-05-13"
     elif config.method == "gpt-o1":
-        gpt_model = gpt_o1_model
+        gpt_model = "o1-preview"
     else:
         raise ValueError(f"Unknown gpt model: {config.method}")
 
@@ -96,6 +156,7 @@ def generate_gpt_tree(config):
 def generate_claude_tree(config: Config):
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(api_key=api_key)
+    claude_model = "claude-3-5-sonnet-20240620"
 
     if not config.force_decision_tree:
         full_prompt = prompts.get_free_prompt(config)
@@ -168,7 +229,7 @@ def generate_gemini_tree(config: Config):
     }
 
     vertexai.init(project=os.environ.get('GOOGLE_CLOUD_PROJECT'), location="us-central1")
-    model = GenerativeModel(gemini_model)
+    model = GenerativeModel("gemini-1.5-pro-001")
 
     if not config.force_decision_tree:
         full_prompt = prompts.get_free_prompt(config)

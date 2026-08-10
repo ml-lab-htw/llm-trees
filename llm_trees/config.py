@@ -4,9 +4,9 @@ class Config:
 
     root = "." # Root directory for the project
     dataset = "penguins"  # Set the dataset name here
-    method = "gpt-4o"  # Set the method here (options: "gpt-4o", "gpt-o1", "gemini", "claude")
+    method = "openrouter"  # LLM method
 
-    temperature = 1  # Set the temperature of the llm
+    temperature = 0  # Set the temperature of the LLM
 
     # Settings for train/test splits
     iter = 0 # iteration counter

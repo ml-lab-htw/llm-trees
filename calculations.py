@@ -27,7 +27,7 @@ if run_config["induction"]:
         include_description_list=[False],
         max_tree_depth_list=[2],
         num_examples_list=[1],
-        temperature_list=[1],
+        temperature_list=[0],
     )
 
 ### Embedding Experiments
@@ -58,7 +58,7 @@ if run_config["setting_1_tree_depth_induction"]:
         result_path=result_path_tree_depth_induction,
         num_examples_list=[1],
         max_tree_depth_list=[1, 2, 3, 4, 5],
-        temperature_list=[1],
+        temperature_list=[0],
         force_decision_tree_list=[True],
         include_description_list=[False],
     )
@@ -138,7 +138,7 @@ if run_config["setting_6_number_of_examples_induction"]:
         result_path=result_path_number_of_examples_induction,
         num_examples_list=[1, 2, 3],
         max_tree_depth_list=[2],
-        temperature_list=[1],
+        temperature_list=[0],
         force_decision_tree_list=[True],
         include_description_list=[False],
         model_list=["gpt-4o", "gpt-o1", "gemini", "claude"],
