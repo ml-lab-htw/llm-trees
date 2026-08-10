@@ -1,9 +1,10 @@
+from pathlib import Path
 from setuptools import setup, find_packages
 
 setup(
     name='llm_trees',
     version='0.2.0',
-    description='A project for generating and evaluating decision trees using LLMs',
+    description='Zero-shot decision tree induction and embedding using large language models',
     author='Mario Koddenbrock, Ricardo Knauer',
     author_email='mario.koddenbrock@htw-berlin.de',
     url='https://github.com/ml-lab-htw/llm-trees',
@@ -28,6 +29,8 @@ setup(
             'llm_trees=llm_trees.cli:main',
         ],
     },
+    long_description=Path("README.md").read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
