@@ -1,0 +1,17 @@
+{
+  "title": "LLM Trees: Decision Trees with Language Models",
+  "description": "Zero-shot decision tree induction and embedding using large language models.",
+  "upload_type": "software",
+  "license": "MIT",
+  "creators": [
+    {"name": "Knauer, Ricardo"},
+    {"name": "Koddenbrock, Mario"}
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.1145/3711896.3736818",
+      "relation": "isSupplementTo",
+      "scheme": "doi"
+    }
+  ]
+}
