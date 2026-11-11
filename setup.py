@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='llm_trees',
-    version='0.2.0',
+    version='0.2.1',
     description='Zero-shot decision tree induction and embedding using large language models',
     author='Mario Koddenbrock, Ricardo Knauer',
     author_email='mario.koddenbrock@htw-berlin.de',
