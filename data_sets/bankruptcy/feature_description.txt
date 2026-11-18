@@ -1,9 +1,0 @@
-Features:
-WC/TA: Working Capital/Total Assets
-RE/TA: Retained Earnings/Total Assets
-EBIT/TA: Earnings Before Interest and Tax/Total Assets
-S/TA: Sales/Total Assets
-BVE/BVL: Book Value of Equity/Book Value of Liabilities
-
-Target variable:
-target: company went bankrupt or not (0 = no, 1 = yes)

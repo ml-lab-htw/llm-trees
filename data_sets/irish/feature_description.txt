@@ -1,9 +1,0 @@
-Features:
-Sex: Sex of child (0 = female, 1 = male)
-DVRT: Drumcondra Verbal Reasoning Test score
-Educational_level: Educational level attained (3rd_level_complete=0, 3rd_level_incomplete=1, ?=2, Junior_cycle_incomplete-secondary_school=3, Junior_cycle_incomplete-vocational_school=4, Junior_cycle_terminal_leaver-secondary_school=5, Junior_cycle_terminal_leaver-vocational_school=6, Primary_terminal_leaver=7, Senior_cycle_incomplete-secondary_school=8, Senior_cycle_incomplete-vocational_school=9, Senior_cycle_terminal_leaver-secondary_school=10)
-Prestige_score: Prestige score for fathers occupation as calculated by Raftery and Hout, 1985 (0 to 28)
-Type_school: Type of school (0 = primary_terminal_leaver, 1 = secondary_terminal_leaver, 2 = vocational)
-
-Target variable:
-target: school leaving certificate is taken or not (0 = not taken, 1 = taken)

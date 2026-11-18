@@ -1,9 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["Judge"] in [0, 1, 2]:
-        return 0  # Holyfield
-    elif X["Judge"] in [3, 4, 5, 6, 7, 8, 9]:
-        return 1  # Lewis
-    else:
-        return 1  # Default to Lewis
-```

@@ -1,275 +1,330 @@
 # LLM Trees: Decision Trees with Language Models
-Official repo: [“Oh LLM, I’m Asking Thee, Please Give Me a Decision Tree”: Zero-Shot Decision Tree Induction and Embedding with Large Language Models](https://dl.acm.org/doi/10.1145/3711896.3736818)
 
-Large language models (LLMs) provide powerful means to leverage prior knowledge for predictive modeling when data is limited. In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich world knowledge within LLMs for tabular machine learning tasks.
+Official repo:
+["Oh LLM, I'm Asking Thee, Please Give Me a Decision Tree": Zero-Shot Decision Tree Induction and Embedding with Large Language Models](https://dl.acm.org/doi/10.1145/3711896.3736818).
 
-## Results Reproduction
-The results presented in the paper can be reproduced by running the `calculations.py` script. 
-However, these results have already been generated and are available in the `result` folder. 
-You can visualize these results using the `evaluations.ipynb` notebook.
+Large language models (LLMs) provide powerful means to leverage prior knowledge for predictive modeling when data is limited.
+In this work, we demonstrate how LLMs can use their compressed world knowledge to generate intrinsically interpretable machine
+learning models, i.e., decision trees, without any training data. We find that these zero-shot decision trees can even surpass
+data-driven trees on some small-sized tabular datasets and that embeddings derived from these trees perform better than data-driven
+tree-based embeddings on average. Our knowledge-driven decision tree induction and embedding approaches therefore serve as strong
+new baselines for data-driven machine learning methods in the low-data regime. Furthermore, they offer ways to harness the rich
+world knowledge within LLMs for tabular machine learning tasks.
 
-# The Python Package
+`llm-trees` exposes this zero-shot LLM decision tree induction and embedding as
+four scikit-learn compatible estimators:
 
-## Overview
-
-`llm_trees` is a Python package that allows you to generate and evaluate decision trees using various language models (LLMs). This package provides a Command Line Interface (CLI) to facilitate these operations. 
-The trees can be evaluated directly (induction) or as embeddings followed by a [multi-layer perceptron classifier](https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html) as a probe. 
-
+- `LLMTreeClassifier` — induce one decision tree classifier.
+- `LLMTreeRegressor` — induce one decision tree regressor.
+- `LLMTreeEmbeddingClassifier` — induce several trees, embed samples as node truth values, fit a downstream classifier.
+- `LLMTreeEmbeddingRegressor` — induce several trees, embed samples as node truth values, fit a downstream regressor.
 
 ## Installation
 
-To install the package, use the following command:
-
 ```sh
-pip install llm_trees
+pip install llm-trees
 ```
 
+The LLM-generated prediction code is executed as Python in your process; run `llm-trees` in a sandbox if you induce trees
+from data or descriptions you do not fully trust.
 
 ## Configuration
 
-We provide an interface to OpenRouter for accessing LLMs. Use an `.env` file to set the [model](https://openrouter.ai/models) and [API key](https://openrouter.ai/keys). The `.env` file should include the following keys:
+LLM calls go through [OpenRouter](https://openrouter.ai) via its
+OpenAI-compatible API. Configure it with the environment variables
+`OPENROUTER_API_KEY` and `OPENROUTER_MODEL` — either in your environment or in
+a `.env` file in your project root (loaded via `python-dotenv`):
 
-- `OPENROUTER_MODEL`
-- `OPENROUTER_API_KEY`
-
-Place the `.env` file in the root directory of your project.
-
-## Usage
-
-The CLI provides three main commands: `generate`, `eval_induction`, and `eval_embedding`.
-
-### Generate Decision Trees
-
-To generate decision trees, use the `generate` command. Below are the available options:
-
-```sh
-python -m llm_trees.cli generate [OPTIONS]
+```dotenv
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_MODEL=model/name
 ```
 
-**Options:**
+The variables are checked lazily: importing `llm_trees` and constructing
+estimators never requires credentials; they are only needed when
+`backend="openrouter"` actually calls the API.
 
-- `--root`: Root directory for the project (default: `.`)
-- `--dataset`: Dataset name (default: `penguins`)
-- `--temperature`: Temperature for the LLM (default: `0`)
-- `--iter`: Iteration counter (default: `0`)
-- `--force_decision_tree`: Force the generation of a decision tree or let the LLM decide (only for induction) (default: `True`)
-- `--include_description`: Include dataset descriptions in the prompt (default: `False`)
-- `--llm_dialogue`: Enable LLM dialogue mode as described in the paper or directly prompting the python code (default: `True`)
-- `--max_tree_depth`: Maximum depth of the decision tree (default: `2`, no maximum depth by selecting `0`)
-- `--num_examples`: Number of examples to provide in the prompt (default: `1`)
-- `--num_retry_llm`: Number of retries for generating a valid tree (default: `10`)
-- `--use_role_prompt`: Use role-based prompts for the LLM (default: `False`)
-- `--seed`: Random seed (default: `42`)
-- `--generate_tree_if_missing`: Generate tree if missing (default: `True`)
-- `--regenerating_invalid_trees`: Regenerate invalid trees (default: `True`)
+## Estimators
 
-### Evaluate Induction
+All estimators accept `X` as a pandas `DataFrame` or a NumPy array (the
+`features` dict provides the column names).
 
-To evaluate the induction process, use the `eval_induction` command. Below are the available options:
+```python
+LLMTreeClassifier(
+    target, features,
+    max_tree_depth=None, num_features=None, prompt_file=True,
+    backend="openrouter", temperature=0.0, seed=None, num_examples=1,
+    use_role_prompt=False, num_retry_llm=10,
+)
 
-```sh
-python -m llm_trees.cli eval_induction [OPTIONS]
+LLMTreeRegressor(
+    target, features,
+    max_tree_depth=None, num_features=None, prompt_file=True,
+    backend="openrouter", temperature=0.0, seed=None, num_examples=1,
+    use_role_prompt=False, num_retry_llm=10,
+)
+
+LLMTreeEmbeddingClassifier(
+    target, features,
+    max_tree_depth=None, num_features=None, num_trees=5,
+    append_raw_features=True, estimator="mlp", downstream_estimator=None,
+    categorical_features=None, prompt_file=True, backend="openrouter",
+    temperature=1.0, seed=None, num_examples=1, use_role_prompt=False,
+    num_retry_llm=10,
+)
+
+LLMTreeEmbeddingRegressor(
+    target, features,
+    max_tree_depth=None, num_features=None, num_trees=5,
+    append_raw_features=True, estimator="mlp", downstream_estimator=None,
+    categorical_features=None, prompt_file=True, backend="openrouter",
+    temperature=1.0, seed=None, num_examples=1, use_role_prompt=False,
+    num_retry_llm=10,
+)
 ```
 
-**Options:**
+Key parameters:
 
-- `--root`: Root directory for the project (default: `.`)
-- `--dataset`: Dataset name (default: `penguins`)
-- `--temperature`: Temperature for the LLM (default: `0`)
-- `--iter`: Iteration counter (default: `0`)
-- `--num_iters`: Number of iterations (default: `5`)
-- `--train_split`: Train/test split ratio (default: `0.67`)
-- `--force_decision_tree`: Force the generation of a decision tree or let the LLM decide (only for induction) (default: `True`)
-- `--include_description`: Include dataset descriptions in the prompt (default: `False`)
-- `--llm_dialogue`: Enable LLM dialogue mode as described in the paper or directly prompting the python code (default: `True`)
-- `--max_tree_depth`: Maximum depth of the decision tree (default: `2`, no maximum depth by selecting `0`)
-- `--num_examples`: Number of examples to provide in the prompt (default: `1`)
-- `--num_retry_llm`: Number of retries for generating a valid tree (default: `10`)
-- `--use_role_prompt`: Use role-based prompts for the LLM (default: `False`)
-- `--num_trees`: Number of trees (default: `5`)
-- `--seed`: Random seed (default: `42`)
-- `--generate_tree_if_missing`: Generate tree if missing (default: `True`)
-- `--regenerating_invalid_trees`: Regenerate invalid trees (default: `True`)
-- `--skip_existing`: Skip existing results and load them from the csv file (default: `True`)
+- `target` (required): a dict with exactly one entry mapping the target
+  column name to its description, including the value encoding for
+  classification (e.g., `{"churn": "customer churn (no, yes)"}` or
+  `{"churn": "customer churn (0 = no, 1 = yes)"}`) or the measurement
+  units for regression (e.g., `{"salary": "annual salary (EUR)"}` or
+  `{"sf36_pf": "SF-36 physical functioning subscore (unitless)"}`).
+  The key is enforced to match the name of `y` when `y` carries one
+  (named Series or one-column DataFrame); with a nameless Series or
+  array the key is descriptive.
+- `features` (required): a dict with one entry per feature, mapping each
+  column name to its description, including the value encoding for
+  categorical features and measurement units for numerical features
+  (e.g., `{"sex": "biological sex (male, female)",
+  "ad_grade": "admission grade (1 = very good, 2 = good, 3 = satisfactory,
+  4 = sufficient, 5 = deficient, 6 = insufficient)",
+  "age": "age (years)",
+  "ab_grade": "Abitur average grade (unitless)"}`); it must cover every
+  feature of `X` (DataFrame: keys must equal `X.columns`; NumPy array:
+  one key per column).
+- `backend`: `"openrouter"` is the only supported backend; LLM calls go
+  through OpenRouter and require the `OPENROUTER_API_KEY` and
+  `OPENROUTER_MODEL` environment variables.
+- `temperature`: sampling temperature forwarded to the LLM backend;
+   a `temperature` of `0` gives more deterministic responses, but the
+   degree of determinism depends on the LLM
+   [THINK AI FIRST, 2026](https://think-ai-first.com/blog/llm-temperature-zero-silent-divergence).
 
-### Evaluate Embedding
+### Induction vs. embedding
 
-To evaluate the embedding process, use the `eval_embedding` command. Below are the available options:
+- **Induction estimators** (`LLMTreeClassifier`, `LLMTreeRegressor`) induce a
+  single decision tree during `fit` and predict with that tree directly:
+  `predict` executes the generated `predict(X)` function row-wise and returns
+  the original target labels (classification) or float values (regression).
+  `LLMTreeClassifier` additionally provides `predict_proba`, the fraction of
+  fit samples of each class in the leaf a sample lands in (empty leaves fall
+  back to the class prior). `predict_proba` (and the structural attributes
+  `tree_`, `support_`, `sparsity_`) requires a structurally parsable tree:
+  when no complexity constraint is set, an executable but unparsable `predict(X)`
+  function may be accepted (see *Two-step workflow* below), in which case
+  the structural attributes are unavailable and `predict_proba` raises
+  `RuntimeError`.
+- **Embedding estimators** (`LLMTreeEmbeddingClassifier`,
+  `LLMTreeEmbeddingRegressor`) induce `num_trees` trees during `fit`, embed
+  each sample as the concatenated truth values of every tree's inner nodes
+  (off-path nodes count as `False`), optionally append preprocessed raw
+  features (`append_raw_features=True`: imputation, one-hot encoding for
+  nominal columns, MinMax scaling for numeric columns), and fit a downstream
+  model on the embedding: one of the presets `estimator="mlp" | "hgbdt" | "lr"`
+  (original paper parameter grids, `GridSearchCV`), or a user-supplied
+  `downstream_estimator` (fitted directly, no grid). `transform(X)` returns
+  the embedding matrix; `predict(X)` runs the fitted downstream model on it.
 
-```sh
-python -m llm_trees.cli eval_embedding [OPTIONS]
-```
+### Complexity constraints: `max_tree_depth` and `num_features`
 
-**Options:**
+Both are `None` (no constraint) or a positive integer ≥ 1; invalid values
+(`0`, negative, non-int, bool) raise `ValueError` at `fit`. The two are
+independent and can be combined. After generation, each tree is structurally
+validated (parsed from its Python source): depth above `max_tree_depth` or
+more distinct referenced features than `num_features` fails the attempt,
+which is retried up to `num_retry_llm` times in total.
 
-- `--root`: Root directory for the project (default: `.`)
-- `--dataset`: Dataset name (default: `penguins`)
-- `--temperature`: Temperature for the LLM (default: `1`)
-- `--iter`: Iteration counter (default: `0`)
-- `--num_iters`: Number of iterations (default: `5`)
-- `--train_split`: Train/test split ratio (default: `0.67`)
-- `--append_raw_features`: Append raw features to the embeddings (default: `True`)
-- `--classifier`: The downstream classifier to use (default: `mlp`, choices: `mlp`, `hgbdt`, `lr`)
-- `--include_description`: Include feature descriptions of the dataset in the prompt (default: `False`)
-- `--llm_dialogue`: Enable LLM dialogue mode as described in the paper or directly prompting the python code (default: `True`)
-- `--max_tree_depth`: Maximum depth of the decision tree (default: `2`, no maximum depth by selecting `0`)
-- `--num_examples`: Number of examples to provide in the prompt (default: `1`)
-- `--num_retry_llm`: Number of retries for generating a valid tree (default: `10`)
-- `--use_role_prompt`: Use role-based prompts for the LLM (default: `False`)
-- `--num_trees`: Number of trees (default: `5`)
-- `--seed`: Random seed (default: `42`)
-- `--generate_tree_if_missing`: Generate tree if missing (default: `True`)
-- `--regenerating_invalid_trees`: Regenerate invalid trees (default: `True`)
-- `--skip_existing`: Skip existing results and load them from the csv file (default: `True`)
+### Classification vs. regression
+
+- Classification estimators map the tree's predictions back onto the original
+  target labels seen at fit (`classes_`); a prediction is accepted if it
+  matches a class label or is an integral position index into `classes_`
+  (mirroring the "target value encoding" prompts).
+- Regression estimators require numeric, finite predictions from the tree.
 
 ## Examples
 
-### Generate Decision Trees
+These examples use small in-memory DataFrames with the feature names and
+descriptions of the ACL injury dataset from the paper and dummy values.
+
+### Classification induction
+
+```python
+import pandas as pd
+from llm_trees import LLMTreeClassifier
+
+X = pd.DataFrame(
+    {
+        "ccMF.S.T2.Me": [35.0, 45.0, 50.0, 30.0, 42.0, 48.0],
+        "ccMF.D.T2.Me": [25.0, 35.0, 40.0, 22.0, 33.0, 38.0],
+        "ccmfthctabame": [2.0, 3.0, 1.5, 2.8, 1.2, 2.2],
+    }
+)
+y = pd.Series([1, 0, 1, 0, 0, 1], name="x1")  # 0 = normal, 1 = abnormal
+
+model = LLMTreeClassifier(
+    target={"x1": "cartilage thickness change in the central medial femur over 12 months following anterior cruciate ligament injury (0 = normal, 1 = abnormal)"},
+    features={
+        "ccMF.S.T2.Me": "baseline mean T2 values for the superficial cartilage layers in the central medial femur (ms)",
+        "ccMF.D.T2.Me": "baseline mean T2 values for the deep cartilage layers in the central medial femur (ms)",
+        "ccmfthctabame": "baseline mean cartilage thickness in the central medial femur (mm)",
+    },
+    max_tree_depth=2,
+).fit(X, y)
+
+print(model.predict(X))        # the 0/1 target labels
+print(model.predict_proba(X))  # leaf class fractions
+print(model.support_)          # features referenced by the induced tree
+```
+
+### Regression induction
+
+```python
+import pandas as pd
+from llm_trees import LLMTreeRegressor
+
+X = pd.DataFrame(
+    {
+        "ccMF.S.T2.Me": [35.0, 45.0, 50.0, 30.0, 42.0, 48.0],
+        "ccMF.D.T2.Me": [25.0, 35.0, 40.0, 22.0, 33.0, 38.0],
+    }
+)
+y = pd.Series([2.0, 3.0, 1.5, 2.8, 1.2, 2.2], name="ccmfthctabame")
+
+model = LLMTreeRegressor(
+    target={"ccmfthctabame": "baseline mean cartilage thickness in the central medial femur (mm)"},
+    features={
+        "ccMF.S.T2.Me": "baseline mean T2 values for the superficial cartilage layers in the central medial femur (ms)",
+        "ccMF.D.T2.Me": "baseline mean T2 values for the deep cartilage layers in the central medial femur (ms)",
+    },
+    max_tree_depth=2,
+).fit(X, y)
+
+print(model.predict(X))  # float64 array of shape (n,)
+print(model.support_)    # features referenced by the induced tree
+```
+
+### Embedding classification
+
+```python
+import pandas as pd
+from llm_trees import LLMTreeEmbeddingClassifier
+
+X = pd.DataFrame(
+    {
+        "ccMF.S.T2.Me": [35.0, 45.0, 50.0, 30.0, 42.0, 48.0],
+        "ccMF.D.T2.Me": [25.0, 35.0, 40.0, 22.0, 33.0, 38.0],
+        "ccmfthctabame": [2.0, 3.0, 1.5, 2.8, 1.2, 2.2],
+    }
+)
+y = pd.Series([1, 0, 1, 0, 0, 1], name="x1")  # 0 = normal, 1 = abnormal
+
+model = LLMTreeEmbeddingClassifier(
+    target={"x1": "cartilage thickness change in the central medial femur over 12 months following anterior cruciate ligament injury (0 = normal, 1 = abnormal)"},
+    features={
+        "ccMF.S.T2.Me": "baseline mean T2 values for the superficial cartilage layers in the central medial femur (ms)",
+        "ccMF.D.T2.Me": "baseline mean T2 values for the deep cartilage layers in the central medial femur (ms)",
+        "ccmfthctabame": "baseline mean cartilage thickness in the central medial femur (mm)",
+    },
+    num_trees=2,
+    estimator="lr",
+).fit(X, y)
+
+print(model.transform(X).shape)  # (6, 3 raw features + num inner nodes of the induced trees)
+print(model.predict(X))          # prediction of the fitted downstream model
+```
+
+### Embedding regression
+
+```python
+import pandas as pd
+from llm_trees import LLMTreeEmbeddingRegressor
+
+X = pd.DataFrame(
+    {
+        "Height": [165.5, 178.2, 160.0, 182.4, 171.9, 168.3, 175.6],
+        "Age": [24, 31, 27, 35, 29, 26, 41],
+    }
+)
+y = pd.Series([22.4, 23.1, 25.8, 20.9, 23.6, 24.4, 21.7], name="BMI_FP")
+
+model = LLMTreeEmbeddingRegressor(
+    target={"BMI_FP": "body mass index (kg/m^2)"},
+    features={
+        "Height": "height (cm)",
+        "Age": "age (years)",
+    },
+    num_trees=3,
+    estimator="lr",
+).fit(X, y)
+
+print(model.transform(X).shape)  # (7, 2 raw features + num inner nodes of the induced trees)
+print(model.predict(X))          # prediction of the fitted downstream model
+```
+
+### Two-step workflow
+
+Every tree is generated by the same two-step dialogue as in the paper:
+
+1. **Step 1** asks the LLM to induce a human-readable decision tree; the
+   target is rendered by its description, every feature as
+   `name: description`, optionally with the complexity constraints.
+2. **Step 2** sends the step-1 response back as assistant context together
+   with a follow-up prompt asking for a Python `predict(X)` function that
+   returns `(prediction, nodes)` — the prediction plus the truth values of
+   the inner nodes.
+
+The two responses are concatenated, the Python function is extracted and
+compiled, and the result is validated on the fit rows: every prediction must
+be mappable to the target (original labels / numeric), every node vector must
+be a one-dimensional sequence of consistent width (mappings and sets are
+rejected), and the tree must satisfy `max_tree_depth` / `num_features`. The
+failure classes are handled differently:
+
+- **Compilation and runtime failures** — syntax errors, exceptions during
+  the row-wise validation, unsupported node-vector containers or values,
+  invalid labels, inconsistent node widths, constraint violations — trigger a
+  retry.
+- **Structural parse failures** — the function compiles and runs but does not
+  follow the expected tree form, so its structure cannot be inspected —
+  trigger a retry only when a complexity constraint is set, because the
+  limits cannot be verified without a parsed structure. Without constraints,
+  such an executable-but-unparsable function is accepted as-is: `predict`
+  works, but the structural attributes (`tree_`, `support_`, `sparsity_`) are
+  unavailable and `LLMTreeClassifier.predict_proba` raises `RuntimeError`.
+
+After `num_retry_llm` total failed attempts, `fit` raises `ValueError`.
+
+## Testing
+
+The test suite is fully offline: no API keys are needed and no test calls a
+real model. LLM responses are scripted, deterministic fakes, so the suite
+exercises the prompt construction, generation, validation, and prediction
+pipeline around a synthetic two-step dialogue. From the repository root,
+run:
 
 ```sh
-python -m llm_trees.cli generate --dataset penguins --temperature 0.0
+pip install -e .[test]
+python -m pytest tests/ -q
 ```
-
-### Evaluate Induction
-
-```sh
-python -m llm_trees.cli eval_induction --dataset penguins --temperature 0.0
-```
-
-### Evaluate Embedding
-
-```sh
-python -m llm_trees.cli eval_embedding --dataset penguins --temperature 1.0
-```
-
-
-## CLI Help
-
-se the `--help` flag for more information.
-
-### Main Command Help
-
-```sh
-python -m llm_trees.cli --help
-```
-
-### Subcommand Help
-
-#### Generate Command
-
-```sh
-python -m llm_trees.cli generate --help
-```
-
-#### Eval Induction Command
-
-```sh
-python -m llm_trees.cli eval_induction --help
-```
-
-#### Eval Embedding Command
-
-```sh
-python -m llm_trees.cli eval_embedding --help
-```
-
-
-## Run with your own Data
-To integrate your own dataset into the `llm_trees` project, follow these steps:
-
-1. **Create a New Folder**: Create a new folder under `data_sets` with the name of your dataset.
-
-2. **Add Data Files**: Inside this folder, add two CSV files: `X.csv` for the features and `y.csv` for the target variable.
-
-3. **Create `prompt.txt`**: Add a `prompt.txt` file with the prompt for the LLM.
-
-4. **Create `feature_description.txt`**: Add a `feature_description.txt` file with detailed descriptions of the features.
-
-5. **Create `description.txt` (Optional)**: Add a `description.txt` file with additional information about the dataset.
-
-### Example Structure
-
-Assume your dataset is named `my_dataset`.
-
-```
-data_sets/
-└── my_dataset/
-    ├── X.csv
-    ├── y.csv
-    ├── prompt.txt
-    ├── feature_description.txt
-    └── description.txt (optional)
-```
-
-### Example Files
-
-#### `X.csv`
-```csv
-island,culmen_length_mm,culmen_depth_mm,flipper_length_mm,body_mass_g,sex
-2,39.1,18.7,181.0,3750.0,2.0
-2,39.5,17.4,186.0,3800.0,1.0
-2,40.3,18.0,195.0,3250.0,1.0
-```
-
-#### `y.csv`
-```csv
-species
-0
-1
-2
-```
-
-#### `prompt.txt`
-```unknown
-I want you to induce a decision tree classifier based on features. I first give an example below. 
-Then, I provide you with Features and want you to build a decision tree with a maximum depth of 2 using the most important features. 
-The tree should classify the species of penguins (Adelie / Chinstrap / Gentoo).
-
-Features: sepal length (cm), sepal width (cm), petal length (cm), petal width (cm)
-
-Decision tree:
-|--- petal width (cm) <= 0.80
-||--- class: setosa
-|--- petal width (cm) > 0.80
-||--- petal width (cm) <= 1.75
-|||--- class: versicolor
-||--- petal width (cm) > 1.75
-|||--- class: virginica
-
-Features: island (Biscoe / Dream / Torgersen), culmen length (mm), culmen depth (mm), flipper length (mm), body mass (g), sex (male / female)
-
-Decision Tree:
-```
-
-#### `feature_description.txt`
-```unknown
-Features:
-island: 3 islands in the Palmer Archipelago, Antarctica (0 = Biscoe / 1 = Dream / 2 = Torgersen)
-culmen_length_mm: The culmen is the upper ridge of a bird’s bill. This feature is the length of the culmen in mm.
-culmen_depth_mm: The culmen is the upper ridge of a bird’s bill. This feature is the depth of the culmen in mm.
-flipper_length_mm: Flipper length in mm.
-body_mass_g: Body Mass Index
-sex: (0 = nan / 1 = female / 2 = male)
-
-Target variable:
-species: penguin species (0 = Adelie / 1 = Chinstrap / 2 = Gentoo)
-```
-
-#### `description.txt` (Optional)
-```unknown
-This dataset contains measurements of penguins from three different islands in the Palmer Archipelago, Antarctica. The features include physical measurements such as culmen length, culmen depth, flipper length, and body mass, as well as the sex of the penguins. The target variable is the species of the penguins, which can be Adelie, Chinstrap, or Gentoo.
-```
-
-By following these steps, you can integrate your own dataset into the `llm_trees` project and use it with the provided CLI commands.
-
-
 
 ## License
 
 This project is licensed under the [MIT License](https://github.com/ml-lab-htw/llm-trees/blob/main/LICENSE). See the `LICENSE` file for details.
 
-
 ## Authors
 
-- Mario Koddenbrock (HTW Berlin)
 - Ricardo Knauer (HTW Berlin)
+- Mario Koddenbrock (HTW Berlin)

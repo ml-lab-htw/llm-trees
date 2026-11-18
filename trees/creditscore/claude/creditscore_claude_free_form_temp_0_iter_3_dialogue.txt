@@ -1,7 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["Age"] > 30 and X["Income.per.dependent"] > 5 and X["Own.home"] == 1 and X["Derogatory.reports"] == 0:
-        return 1
-    else:
-        return 0
-```

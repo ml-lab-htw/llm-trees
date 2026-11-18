@@ -1,9 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["island"] == 0:
-        return 0
-    elif X["island"] == 1:
-        return 1
-    else:
-        return 2
-```

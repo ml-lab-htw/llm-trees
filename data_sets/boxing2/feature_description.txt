@@ -1,7 +1,0 @@
-Features:
-Judge: Judge (0 = G. Hamada, 1 = B. Logist, 2 = J. Roth, 3 = HBO-Lederman, 4 = Sportsticker, 5 = Los Angeles Times-Kawakami, 6 = USA Today, 7 = Associated Press, 8 = Las Vegas Review-Journal, 9 = Los Angeles Times-Springer, 10 = van de Wiele)
-Official: Offical judge (1 = Yes, 0 = No)
-Round: Round (1 to 12)
-
-Target variable:
-target: which of the two boxing fighters won each the round (0 = Trinidad, 1 = de la Hoya)

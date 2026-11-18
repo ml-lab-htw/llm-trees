@@ -1,7 +1,0 @@
-Features:
-Judge: Judge (0 = E. Williams, 1 = L. O'Connell, 2 = S. Christodoulu, 3 = HBO-Lederman, 4 = Sportsticker, 5 = Boxing Times, 6 = Sportsline, 7 = Associated Press, 8 = ESPN, 9 = Boxing Monthly-Leach)
-Official: Offical judge (1 = Yes, 0 = No)
-Round: Round (1 to 12)
-
-Target variable:
-target: which of the two boxing fighters won each the round (1 = Lewis, 0 = Holyfield)

@@ -1,8 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["surgery"] == 2:
-        return 1
-    else:
-        return 0
-
-```

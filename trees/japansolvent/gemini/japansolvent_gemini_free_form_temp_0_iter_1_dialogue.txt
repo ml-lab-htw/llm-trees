@@ -1,7 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["EBIT/TA"] > 0.05 and X["NI/TC"] > 0.02 and X["Sales/TA"] > 0.8 and X["Equity/TA"] > 0.5:
-        return 1
-    else:
-        return 0
-```

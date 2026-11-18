@@ -1,3 +1,6 @@
+# Runtime artifacts
+prompt.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -160,7 +163,3 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-/data_sets/acl/X.csv
-/data_sets/acl/y.csv
-/data_sets/posttrauma/X.csv
-/data_sets/posttrauma/y.csv

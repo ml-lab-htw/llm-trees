@@ -1,5 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    # Placeholder classifier - always predicts survival (1)
-    return 1
-```

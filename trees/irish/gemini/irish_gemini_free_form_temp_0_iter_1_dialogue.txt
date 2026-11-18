@@ -1,9 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["DVRT"] > 70 and X["Prestige_score"] > 15 and X["Educational_level"] < 3:
-        return 1
-    elif X["Sex"] == 1 and X["Type_school"] == 1:
-        return 1
-    else:
-        return 0
-```

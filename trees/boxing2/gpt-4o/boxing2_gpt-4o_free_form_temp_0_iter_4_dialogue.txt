@@ -1,9 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["Judge"] in [0, 2, 5, 9]:  # Some judges seem to favor one fighter
-        return 0
-    elif X["Judge"] in [1, 3, 4, 6, 7, 8, 10]: # Others the other
-        return 1
-    else:
-        return 0  # Default
-```

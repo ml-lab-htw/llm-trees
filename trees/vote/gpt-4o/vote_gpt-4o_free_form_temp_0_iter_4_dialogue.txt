@@ -1,7 +1,0 @@
-```python
-def predict(X: dict) -> int:
-    if X["physician fee freeze"] == 1 and X["adoption of the budget resolution"] == 1 and X["mx missile"] == 1:
-        return 1
-    else:
-        return 0
-```
