@@ -27,7 +27,8 @@ class OpenRouterClient:
     """OpenRouter via its OpenAI-compatible API.
 
     Configuration through the environment variables ``OPENROUTER_API_KEY`` and
-    ``OPENROUTER_MODEL``; checked lazily at call time so that importing the
+    ``OPENROUTER_MODEL``; ``OPENROUTER_BASE_URL`` optionally points the client at
+    another OpenAI-compatible server (vLLM, LiteLLM, Ollama); checked lazily at call time so that importing the
     package never requires credentials.
     """
 
@@ -48,7 +49,7 @@ class OpenRouterClient:
             )
 
         client = OpenAI(
-            base_url=OPENROUTER_BASE_URL,
+            base_url=os.environ.get("OPENROUTER_BASE_URL", OPENROUTER_BASE_URL),
             api_key=os.environ["OPENROUTER_API_KEY"],
         )
         openrouter_model = os.environ["OPENROUTER_MODEL"]
