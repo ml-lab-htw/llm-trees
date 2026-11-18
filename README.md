@@ -40,6 +40,9 @@ OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_MODEL=model/name
 ```
 
+To use another OpenAI-compatible server (vLLM, LiteLLM, Ollama), also set
+`OPENROUTER_BASE_URL` (default `https://openrouter.ai/api/v1`); `OPENROUTER_API_KEY` is still sent as the bearer token.
+
 The variables are checked lazily: importing `llm_trees` and constructing
 estimators never requires credentials; they are only needed when
 `backend="openrouter"` actually calls the API.

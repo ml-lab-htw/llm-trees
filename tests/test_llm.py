@@ -21,6 +21,7 @@ def _response(content: str):
 def openrouter_env(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
     monkeypatch.setenv("OPENROUTER_MODEL", "test-model")
+    monkeypatch.delenv("OPENROUTER_BASE_URL", raising=False)
     yield
 
 
@@ -72,6 +73,14 @@ def test_temperature_and_seed_forwarded(openrouter_env):
     mock_openai.assert_called_once_with(
         base_url=_llm.OPENROUTER_BASE_URL, api_key="test-key"
     )
+
+
+def test_base_url_can_point_at_another_openai_compatible_server(openrouter_env, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_BASE_URL", "http://localhost:8000/v1")
+    with mock.patch.object(_llm, "OpenAI") as mock_openai:
+        mock_openai.return_value.chat.completions.create.return_value = _response("R")
+        OpenRouterClient(temperature=0.0, seed=0).two_step("f", "s")
+    mock_openai.assert_called_once_with(base_url="http://localhost:8000/v1", api_key="test-key")
 
 
 def test_missing_openrouter_env_raises_clear_error(monkeypatch):
